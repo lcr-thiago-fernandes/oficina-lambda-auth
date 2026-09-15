@@ -15,15 +15,6 @@ public sealed class ProvedorDeSegredosAmbiente : IProvedorDeSegredos
 
     public ProvedorDeSegredosAmbiente(IReadOnlyDictionary<string, string?> variaveis) => _variaveis = variaveis;
 
-    public static ProvedorDeSegredosAmbiente DoProcesso()
-    {
-        var env = Environment.GetEnvironmentVariables();
-        var dict = new Dictionary<string, string?>();
-        foreach (var chave in env.Keys)
-            dict[chave.ToString()!] = env[chave]?.ToString();
-        return new ProvedorDeSegredosAmbiente(dict);
-    }
-
     public Task<string> ObterAsync(string nome, CancellationToken ct)
     {
         if (!Mapa.TryGetValue(nome, out var variavel))

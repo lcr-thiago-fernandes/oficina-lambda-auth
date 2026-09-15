@@ -22,7 +22,7 @@ public sealed class AutenticarClienteUseCase
         _protecao = protecao;
     }
 
-    public async Task<TokenEmitido> ExecutarAsync(AutenticarClienteRequest request, string origem, CancellationToken ct)
+    public async Task<TokenEmitido> ExecutarAsync(AutenticarClienteRequest request, string? origem, CancellationToken ct)
     {
         // 1. Validar o CPF — antes de qualquer I/O, sem gastar tentativa nem banco.
         var documento = Documento.Criar(request.Cpf ?? string.Empty);

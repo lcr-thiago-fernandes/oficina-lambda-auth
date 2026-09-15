@@ -25,7 +25,7 @@ public sealed class AutenticarAdminUseCase
         _protecao = protecao;
     }
 
-    public async Task<TokenEmitido> ExecutarAsync(AutenticarAdminRequest request, string origem, CancellationToken ct)
+    public async Task<TokenEmitido> ExecutarAsync(AutenticarAdminRequest request, string? origem, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrEmpty(request.Password))
             throw new ArgumentException("username e password são obrigatórios.");

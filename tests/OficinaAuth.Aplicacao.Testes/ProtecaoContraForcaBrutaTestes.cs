@@ -58,6 +58,23 @@ public class ProtecaoContraForcaBrutaTestes
     }
 
     [Fact]
+    public async Task ExigirPermitido_SemOrigem_NaoConsultaChaveDeOrigem()
+    {
+        await Sut().ExigirPermitidoAsync(null, "admin", default);
+
+        _limitador.Verify(l => l.ContarFalhasAsync(It.Is<string>(c => c.StartsWith("origem:")), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task RegistrarFalha_SemOrigem_NaoRegistraChaveDeOrigem()
+    {
+        await Sut().RegistrarFalhaAsync(null, "admin", default);
+
+        _limitador.Verify(l => l.RegistrarFalhaAsync(It.Is<string>(c => c.StartsWith("origem:")), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()), Times.Never);
+        _limitador.Verify(l => l.RegistrarFalhaAsync("identidade:admin", TimeSpan.FromMinutes(15), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task RegistrarFalha_DeveIncrementarOrigemEIdentidadeComAJanelaDaPolitica()
     {
         await Sut().RegistrarFalhaAsync("1.2.3.4", "Admin", default);

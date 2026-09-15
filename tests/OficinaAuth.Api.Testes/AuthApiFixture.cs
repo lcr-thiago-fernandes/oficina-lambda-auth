@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Net;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +28,28 @@ public sealed class UsuarioRepositorioFalso : IUsuarioRepositorio
 
     public Task<UsuarioAutenticavel?> ObterPorUsernameAsync(string username, CancellationToken ct) =>
         Task.FromResult(PorUsername.TryGetValue(username, out var u) ? u : null);
+}
+
+/// <summary>
+/// TestServer não preenche <c>HttpContext.Connection.RemoteIpAddress</c> (fica nulo), o que
+/// desde a correção da ProtecaoContraForcaBruta faz a checagem por origem ser pulada. Este
+/// filtro injeta um IP fixo antes do pipeline da aplicação, para os testes que dependem do
+/// limite por origem (ex.: <see cref="AuthClienteEndpointTestes.AposMaximoDeFalhasDaOrigem_Deve429ComRetryAfter"/>)
+/// continuarem exercitando esse caminho.
+/// </summary>
+public sealed class OrigemFalsaStartupFilter : IStartupFilter
+{
+    public static readonly IPAddress Ip = IPAddress.Parse("203.0.113.10");
+
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+    {
+        app.Use((ctx, proximo) =>
+        {
+            ctx.Connection.RemoteIpAddress = Ip;
+            return proximo(ctx);
+        });
+        next(app);
+    };
 }
 
 /// <summary>
@@ -59,6 +83,7 @@ public sealed class AuthApiFixture : WebApplicationFactory<Program>
             services.RemoveAll<IUsuarioRepositorio>();
             services.AddSingleton<IClienteRepositorio>(Clientes);
             services.AddSingleton<IUsuarioRepositorio>(Usuarios);
+            services.AddSingleton<IStartupFilter>(new OrigemFalsaStartupFilter());
         });
     }
 }
