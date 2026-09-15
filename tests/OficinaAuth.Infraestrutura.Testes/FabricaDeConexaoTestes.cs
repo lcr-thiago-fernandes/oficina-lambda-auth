@@ -63,20 +63,43 @@ public class FabricaDeConexaoTestes
 
         var fabrica = new FabricaDeConexao(Parametros, segredos.Object);
 
-        // ct já cancelado: o chamador desiste de esperar, mas a construção
-        // compartilhada (ainda presa no ObterAsync do provedor) continua rodando.
-        Func<Task> chamadaCancelada = async () => await fabrica.ObterAsync(new CancellationToken(canceled: true)).AsTask();
-        await chamadaCancelada.Should().ThrowAsync<OperationCanceledException>();
+        using var cts = new CancellationTokenSource();
+
+        // A chamada entra na seção crítica, cria a tarefa compartilhada (que fica
+        // presa aguardando o TCS) e passa a esperar por ela FORA do portão — só
+        // depois disso o chamador cancela.
+        var chamada = fabrica.ObterAsync(cts.Token).AsTask();
+
+        cts.Cancel();
+
+        Func<Task> aguardarChamadaCancelada = async () => await chamada;
+        await aguardarChamadaCancelada.Should().ThrowAsync<OperationCanceledException>();
 
         senhaPendente.SetResult("senha-qualquer");
 
         var dataSource = await fabrica.ObterAsync(CancellationToken.None);
         dataSource.Should().NotBeNull();
 
-        // Só uma construção aconteceu: a chamada cancelada não descartou a
+        // Só uma construção aconteceu: o cancelamento do chamador não descartou a
         // construção em andamento nem disparou uma segunda em paralelo.
         segredos.Verify(
             s => s.ObterAsync(NomesDeSegredos.SenhaDoBanco, It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ObterAsync_ComCtJaCancelado_LancaSemChegarAChamarOProvedor()
+    {
+        var segredos = new Mock<IProvedorDeSegredos>();
+
+        var fabrica = new FabricaDeConexao(Parametros, segredos.Object);
+
+        Func<Task> chamadaComCtJaCancelado =
+            async () => await fabrica.ObterAsync(new CancellationToken(canceled: true)).AsTask();
+        await chamadaComCtJaCancelado.Should().ThrowAsync<OperationCanceledException>();
+
+        segredos.Verify(
+            s => s.ObterAsync(NomesDeSegredos.SenhaDoBanco, It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

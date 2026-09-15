@@ -50,27 +50,45 @@ public sealed class FabricaDeConexao
 
     public async ValueTask<NpgsqlDataSource> ObterAsync(CancellationToken ct)
     {
-        // O portão em si nunca é cancelado pelo ct do chamador: é uma seção crítica
-        // curtíssima (ler/criar o campo), não a espera pela construção. Só o ct do
-        // chamador governa quanto tempo ELE espera a construção compartilhada terminar.
+        // O portão só protege a leitura/criação do campo `_dataSource` — uma seção
+        // crítica trivial. A espera pela construção em si acontece FORA do portão,
+        // para que o ct de um chamador (cancelamento, timeout) nunca bloqueie outro
+        // chamador que está esperando a mesma tarefa compartilhada terminar.
+        Task<NpgsqlDataSource> tarefa;
+        await _portao.WaitAsync(ct);
+        try
+        {
+            tarefa = _dataSource ??= _construir();
+        }
+        finally
+        {
+            _portao.Release();
+        }
+
+        try
+        {
+            return await tarefa.WaitAsync(ct);
+        }
+        catch when (tarefa.IsFaulted || tarefa.IsCanceled)
+        {
+            // A construção compartilhada em si falhou (ou foi cancelada): não cacheia,
+            // a próxima chamada reconstrói do zero. Se em vez disso foi só o ct do
+            // CHAMADOR que expirou enquanto a construção compartilhada ainda rodava (e
+            // pode terminar com sucesso para outra chamada), o filtro acima é falso e a
+            // exceção propaga sem descartar `_dataSource`.
+            await DescartarAsync(tarefa);
+            throw;
+        }
+    }
+
+    /// <summary>Remove `tarefa` do cache, mas só se ninguém mais a substituiu antes.</summary>
+    private async Task DescartarAsync(Task<NpgsqlDataSource> tarefa)
+    {
         await _portao.WaitAsync(CancellationToken.None);
         try
         {
-            var tarefa = _dataSource ??= _construir();
-            try
-            {
-                return await tarefa.WaitAsync(ct);
-            }
-            catch when (tarefa.IsFaulted || tarefa.IsCanceled)
-            {
-                // A construção compartilhada em si falhou (ou foi cancelada): não
-                // cacheia, a próxima chamada reconstrói do zero. Se em vez disso foi
-                // só o ct do CHAMADOR que expirou enquanto a construção compartilhada
-                // ainda rodava (e pode terminar com sucesso para outra chamada), o
-                // filtro acima é falso e a exceção propaga sem descartar `_dataSource`.
+            if (ReferenceEquals(_dataSource, tarefa))
                 _dataSource = null;
-                throw;
-            }
         }
         finally
         {
