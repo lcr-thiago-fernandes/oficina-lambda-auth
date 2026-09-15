@@ -11,6 +11,10 @@ namespace OficinaAuth.Authorizer.Testes;
 /// (via WaitAsync(ct)) não pode descartar o cache estático — só uma falha real da tarefa
 /// de leitura (falha ou cancelamento da PRÓPRIA tarefa) deve evictar o cache.
 /// </summary>
+// Compartilha o cache estático de LeitorDeSegredo com FunctionTestes: precisa rodar na mesma
+// coleção para que xUnit não execute as duas classes em paralelo (o que tornaria
+// LimparCacheParaTestes() de uma classe capaz de invalidar o cache no meio de um teste da outra).
+[Collection("CacheEstaticoDoSegredo")]
 public class LeitorDeSegredoTestes
 {
     private const string Segredo = "chave-de-teste-com-mais-de-32-caracteres-para-hs256";

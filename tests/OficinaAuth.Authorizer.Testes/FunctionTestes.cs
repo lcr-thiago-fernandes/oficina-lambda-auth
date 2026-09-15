@@ -11,6 +11,10 @@ using OficinaAuth.Authorizer;
 
 namespace OficinaAuth.Authorizer.Testes;
 
+// Compartilha o cache estático de LeitorDeSegredo com LeitorDeSegredoTestes: precisa rodar
+// na mesma coleção para que xUnit não execute as duas classes em paralelo (o que tornaria
+// LimparCacheParaTestes() de uma classe capaz de invalidar o cache no meio de um teste da outra).
+[Collection("CacheEstaticoDoSegredo")]
 public class FunctionTestes
 {
     private const string Segredo = "chave-de-teste-com-mais-de-32-caracteres-para-hs256";
