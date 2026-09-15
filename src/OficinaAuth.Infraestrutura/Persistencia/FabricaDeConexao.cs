@@ -50,17 +50,24 @@ public sealed class FabricaDeConexao
 
     public async ValueTask<NpgsqlDataSource> ObterAsync(CancellationToken ct)
     {
-        await _portao.WaitAsync(ct);
+        // O portão em si nunca é cancelado pelo ct do chamador: é uma seção crítica
+        // curtíssima (ler/criar o campo), não a espera pela construção. Só o ct do
+        // chamador governa quanto tempo ELE espera a construção compartilhada terminar.
+        await _portao.WaitAsync(CancellationToken.None);
         try
         {
-            _dataSource ??= _construir();
+            var tarefa = _dataSource ??= _construir();
             try
             {
-                return await _dataSource.WaitAsync(ct);
+                return await tarefa.WaitAsync(ct);
             }
-            catch
+            catch when (tarefa.IsFaulted || tarefa.IsCanceled)
             {
-                // Não cacheia falha: a próxima chamada reconstrói do zero.
+                // A construção compartilhada em si falhou (ou foi cancelada): não
+                // cacheia, a próxima chamada reconstrói do zero. Se em vez disso foi
+                // só o ct do CHAMADOR que expirou enquanto a construção compartilhada
+                // ainda rodava (e pode terminar com sucesso para outra chamada), o
+                // filtro acima é falso e a exceção propaga sem descartar `_dataSource`.
                 _dataSource = null;
                 throw;
             }
