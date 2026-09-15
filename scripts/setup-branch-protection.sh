@@ -17,11 +17,6 @@ for BRANCH in main develop; do
   # Checks obrigatorios (contexts = nome do JOB no ci.yml). Ficaram vazios enquanto o
   # CI nunca tinha rodado — exigir um check que nunca executou trava qualquer merge —
   # e foram preenchidos depois do primeiro CI verde.
-  #
-  # "format" NAO entra de proposito: o passo do dotnet format e `continue-on-error:
-  # true` por decisao registrada, entao o job termina verde mesmo com divergencia de
-  # estilo. Exigi-lo daria a aparencia de um gate sem gate nenhum. Quando o
-  # continue-on-error sair (TODO no ci.yml), acrescente "format" aqui.
   gh api -X PUT "repos/${REPO}/branches/${BRANCH}/protection" \
     -H "Accept: application/vnd.github+json" \
     --input - <<'JSON'
