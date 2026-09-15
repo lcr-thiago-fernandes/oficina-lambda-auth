@@ -1,0 +1,69 @@
+name: CD
+
+# Infraestrutura tem ambiente unico (design, secao 7): develop -> plan; main -> apply.
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: cd-lambda-auth
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # So main e develop tem acao definida; qualquer outra ref (workflow_dispatch) falha alto.
+      - name: Definir acao
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$REF_NAME" = "main" ]; then
+            echo "ACAO=apply" >> "$GITHUB_ENV"
+          elif [ "$REF_NAME" = "develop" ]; then
+            echo "ACAO=plan" >> "$GITHUB_ENV"
+          else
+            echo "ERRO: ref '$REF_NAME' nao tem acao de deploy (main=apply, develop=plan)." >&2
+            exit 1
+          fi
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Empacotar Lambdas
+        run: ./scripts/empacotar.sh
+
+      - name: Configurar credenciais AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_LAMBDA_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init
+        run: terraform -chdir=terraform init
+
+      # Os zips ficam em artefatos/ (raiz do repo); o Terraform roda em terraform/, por isso ../.
+      - name: Terraform plan
+        run: |
+          terraform -chdir=terraform plan -input=false \
+            -var "api_zip_path=../artefatos/auth-api.zip" \
+            -var "authorizer_zip_path=../artefatos/auth-authorizer.zip" \
+            -out=tfplan
+
+      - name: Terraform apply
+        if: ${{ env.ACAO == 'apply' }}
+        run: terraform -chdir=terraform apply -input=false -auto-approve tfplan
