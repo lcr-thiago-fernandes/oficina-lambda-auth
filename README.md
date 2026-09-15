@@ -77,8 +77,8 @@ Respostas de erro em `application/problem+json`. `401` traz `WWW-Authenticate: B
 
 | Rota | 200 | 400 | 401 | 403 | 404 | 429 |
 |---|---|---|---|---|---|---|
-| `POST /auth/cliente` | token | CPF inválido | — | cliente inativo | CPF sem cadastro | > 10 falhas do mesmo IP em 15 min |
-| `POST /auth/admin` | token | campos vazios | usuário inexistente **ou** senha errada | usuário inativo (só com senha certa) | — | > 5 falhas no mesmo usuário ou > 10 do mesmo IP em 15 min |
+| `POST /auth/cliente` | token | CPF inválido | — | cliente inativo | CPF sem cadastro | a partir da 10ª falha do mesmo IP em 15 min |
+| `POST /auth/admin` | token | campos vazios | usuário inexistente **ou** senha errada | usuário inativo (só com senha certa) | — | a partir da 5ª falha no mesmo usuário ou da 10ª do mesmo IP em 15 min |
 
 ## Stack
 
@@ -182,6 +182,10 @@ Logs JSON no CloudWatch com `correlationId` (header `X-Correlation-Id`, mesmo da
 6. **Authorizer com resposta simples** (`isAuthorized` + contexto), não policy IAM.
 7. **`Documento.cs` é cópia** (ADR-019): o job `paridade-documento` do CI compara com o
    original a cada PR.
+8. **`/auth/cliente` autentica só com o CPF**, um identificador semipúblico. O limitador
+   por IP contém enumeração, mas quem já conhece um CPF cadastrado obtém tokens à
+   vontade. É o desenho do enunciado da fase, não um defeito — a mitigação natural
+   seria um segundo fator, fora de escopo aqui.
 
 ## Swagger
 

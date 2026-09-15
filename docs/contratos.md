@@ -23,15 +23,16 @@ silêncio se divergir: o `apply` passa e o sintoma aparece longe da causa.
 | `/oficina/apigw/vpc_link_integration_id` | **novo**: id da `aws_apigatewayv2_integration` (HTTP_PROXY via VPC Link) — alvo da rota `ANY /api/v1/{proxy+}` criada aqui (decisão D1) |
 | `/oficina/network/vpc_id`, `/oficina/network/private_subnet_ids` (StringList) | `vpc_config` da auth-api |
 | Rotas sem authorizer criadas lá | `GET /health`, `GET /swagger/{proxy+}`, `POST /api/v1/ordens-servico/{id}/orcamento/aprovacao` — mais específicas, vencem a `{proxy+}` |
-| Throttling no stage `$default` | `route_settings` para `POST /auth/cliente` e `POST /auth/admin` (sugestão: `throttling_rate_limit = 10`, `throttling_burst_limit = 20`). É a camada grossa; a fina (por IP/identidade) é o DynamoDB deste repo |
+| Throttling no stage `$default` | **Requisito**, não sugestão: `route_settings` para `POST /auth/cliente` e `POST /auth/admin` (`throttling_rate_limit = 10`, `throttling_burst_limit = 20`). É a única camada grossa; a fina (por IP/identidade) fica no DynamoDB deste repo e pode ser distribuída entre várias origens |
 | Mapeamento opcional de contexto | `request_parameters` na integração do VPC Link: `append:header.X-Perfil = $context.authorizer.perfil`, `X-Sub`, `X-Documento`. Informativo — a API revalida o JWT |
 | NAT Gateway | a auth-api sai para Secrets Manager e DynamoDB por ele (sem VPC endpoints) |
+| Rota `ANY /api/v1/{proxy+}` | infra-k8s **não deve criar** essa rota — ela é criada aqui (ver tabela "Rotas que este repositório cria"). Dois `aws_apigatewayv2_route` disputando a mesma `route_key` em states diferentes dão `ConflictException` no `apply` |
 
 ## O que este repositório EXIGE do `oficina-infra-db`
 
 | Item | Motivo |
 |---|---|
-| `/oficina/db/endpoint`, `/oficina/db/security_group_id` no SSM | conexão e regra de SG |
+| `/oficina/db/endpoint`, `/oficina/db/security_group_id` no SSM | conexão e regra de SG. `/oficina/db/endpoint` é **só o hostname, sem `:porta`** (`aws_db_instance.address`, não `.endpoint`) — vai direto para `Banco__Host` e a porta é configurada à parte |
 | Regras do SG do RDS como **recursos separados** (`aws_vpc_security_group_ingress_rule`), nunca inline | este repo adiciona `5432 ← sg-lambda-auth` nesse SG; inline + separado no mesmo SG se apagam mutuamente a cada `apply` |
 | `rds.force_ssl` | a auth-api usa `SSL Mode=Prefer`; funciona com `force_ssl` 0 ou 1 |
 

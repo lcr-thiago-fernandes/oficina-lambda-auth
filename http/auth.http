@@ -2,6 +2,8 @@
 # Local:   @host = http://localhost:8081
 # Gateway: @host = https://<api-id>.execute-api.us-east-1.amazonaws.com
 @host = http://localhost:8081
+# cole aqui o access_token do passo 1 ou 5
+@token =
 
 ### 1) Cliente ativo -> 200 { access_token, token_type, expires_in, perfil: "Cliente" }
 POST {{host}}/auth/cliente
