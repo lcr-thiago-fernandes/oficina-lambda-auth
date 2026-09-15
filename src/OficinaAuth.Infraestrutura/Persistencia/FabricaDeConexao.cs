@@ -10,15 +10,20 @@ public sealed record ParametrosDoBanco(string Host, int Porta, string Nome, stri
 /// Monta e cacheia um único <see cref="NpgsqlDataSource"/> por processo. Em Lambda o
 /// container atende uma requisição por vez, então <c>Maximum Pool Size=2</c> basta e
 /// evita abrir conexões que nunca serão usadas (cold start e limite do db.t3.micro).
+/// Uma falha na construção (ex.: Secrets Manager indisponível) NÃO fica em cache: a
+/// próxima chamada tenta construir de novo, em vez de repetir a mesma exceção para
+/// sempre no container morno do Lambda.
 /// </summary>
 public sealed class FabricaDeConexao
 {
-    private readonly Lazy<Task<NpgsqlDataSource>> _dataSource;
+    private readonly Func<Task<NpgsqlDataSource>> _construir;
+    private readonly SemaphoreSlim _portao = new(1, 1);
+    private Task<NpgsqlDataSource>? _dataSource;
 
     /// <summary>Uso em Lambda: senha resolvida sob demanda pelo provedor de segredos.</summary>
     public FabricaDeConexao(ParametrosDoBanco parametros, IProvedorDeSegredos segredos)
     {
-        _dataSource = new Lazy<Task<NpgsqlDataSource>>(async () =>
+        _construir = async () =>
         {
             var senha = await segredos.ObterAsync(NomesDeSegredos.SenhaDoBanco, CancellationToken.None);
             var builder = new NpgsqlConnectionStringBuilder
@@ -34,14 +39,35 @@ public sealed class FabricaDeConexao
                 SslMode = SslMode.Prefer
             };
             return NpgsqlDataSource.Create(builder.ConnectionString);
-        });
+        };
     }
 
     /// <summary>Uso local e em testes: connection string completa.</summary>
     public FabricaDeConexao(string connectionString)
     {
-        _dataSource = new Lazy<Task<NpgsqlDataSource>>(() => Task.FromResult(NpgsqlDataSource.Create(connectionString)));
+        _construir = () => Task.FromResult(NpgsqlDataSource.Create(connectionString));
     }
 
-    public async ValueTask<NpgsqlDataSource> ObterAsync(CancellationToken ct) => await _dataSource.Value.WaitAsync(ct);
+    public async ValueTask<NpgsqlDataSource> ObterAsync(CancellationToken ct)
+    {
+        await _portao.WaitAsync(ct);
+        try
+        {
+            _dataSource ??= _construir();
+            try
+            {
+                return await _dataSource.WaitAsync(ct);
+            }
+            catch
+            {
+                // Não cacheia falha: a próxima chamada reconstrói do zero.
+                _dataSource = null;
+                throw;
+            }
+        }
+        finally
+        {
+            _portao.Release();
+        }
+    }
 }
