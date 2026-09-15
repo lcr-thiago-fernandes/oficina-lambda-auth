@@ -1,0 +1,44 @@
+### oficina-lambda-auth — roteiro de autenticacao
+# Local:   @host = http://localhost:8081
+# Gateway: @host = https://<api-id>.execute-api.us-east-1.amazonaws.com
+@host = http://localhost:8081
+
+### 1) Cliente ativo -> 200 { access_token, token_type, expires_in, perfil: "Cliente" }
+POST {{host}}/auth/cliente
+Content-Type: application/json
+
+{ "cpf": "390.533.447-05" }
+
+### 2) CPF com digito verificador invalido -> 400
+POST {{host}}/auth/cliente
+Content-Type: application/json
+
+{ "cpf": "12345678900" }
+
+### 3) CPF valido sem cadastro -> 404
+POST {{host}}/auth/cliente
+Content-Type: application/json
+
+{ "cpf": "52998224725" }
+
+### 4) Cliente inativo -> 403 (inative um cliente pela API de gestao antes)
+POST {{host}}/auth/cliente
+Content-Type: application/json
+
+{ "cpf": "11144477735" }
+
+### 5) Admin (bootstrap do oficina-app) -> 200 { perfil: "Admin" }
+POST {{host}}/auth/admin
+Content-Type: application/json
+
+{ "username": "admin", "password": "AlteraMe@123" }
+
+### 6) Senha errada -> 401 (repita 5x: a 6a da 429 com Retry-After)
+POST {{host}}/auth/admin
+Content-Type: application/json
+
+{ "username": "admin", "password": "errada" }
+
+### 7) Usar o token na API (via gateway): sem token -> 401; com token de Cliente -> 200
+GET {{host}}/api/v1/me/veiculos
+Authorization: Bearer {{token}}
