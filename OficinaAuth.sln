@@ -1,0 +1,92 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DEEFE102-5330-4954-86A9-FB22D7CBD5C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Api", "src\OficinaAuth.Api\OficinaAuth.Api.csproj", "{49FE3D6F-C9AA-4E94-AA9A-42D77D116868}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Aplicacao", "src\OficinaAuth.Aplicacao\OficinaAuth.Aplicacao.csproj", "{D3084709-230C-4DF9-83C6-EA6B5247A8BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Authorizer", "src\OficinaAuth.Authorizer\OficinaAuth.Authorizer.csproj", "{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Dominio", "src\OficinaAuth.Dominio\OficinaAuth.Dominio.csproj", "{75B1992A-3ABA-462E-A898-38BD99EC2EAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Infraestrutura", "src\OficinaAuth.Infraestrutura\OficinaAuth.Infraestrutura.csproj", "{463B56D6-809D-4FA2-8675-964763AA0DD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Api.Testes", "tests\OficinaAuth.Api.Testes\OficinaAuth.Api.Testes.csproj", "{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Aplicacao.Testes", "tests\OficinaAuth.Aplicacao.Testes\OficinaAuth.Aplicacao.Testes.csproj", "{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Authorizer.Testes", "tests\OficinaAuth.Authorizer.Testes\OficinaAuth.Authorizer.Testes.csproj", "{7FD41123-E189-469E-A7AF-F0A0CA119A19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Dominio.Testes", "tests\OficinaAuth.Dominio.Testes\OficinaAuth.Dominio.Testes.csproj", "{974D9678-7666-42AD-9B6C-197371ABE9F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OficinaAuth.Infraestrutura.Testes", "tests\OficinaAuth.Infraestrutura.Testes\OficinaAuth.Infraestrutura.Testes.csproj", "{600C82C9-2940-42C1-AA58-B711509E94AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49FE3D6F-C9AA-4E94-AA9A-42D77D116868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49FE3D6F-C9AA-4E94-AA9A-42D77D116868}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49FE3D6F-C9AA-4E94-AA9A-42D77D116868}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49FE3D6F-C9AA-4E94-AA9A-42D77D116868}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3084709-230C-4DF9-83C6-EA6B5247A8BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3084709-230C-4DF9-83C6-EA6B5247A8BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3084709-230C-4DF9-83C6-EA6B5247A8BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3084709-230C-4DF9-83C6-EA6B5247A8BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B1992A-3ABA-462E-A898-38BD99EC2EAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B1992A-3ABA-462E-A898-38BD99EC2EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B1992A-3ABA-462E-A898-38BD99EC2EAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B1992A-3ABA-462E-A898-38BD99EC2EAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{463B56D6-809D-4FA2-8675-964763AA0DD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{463B56D6-809D-4FA2-8675-964763AA0DD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{463B56D6-809D-4FA2-8675-964763AA0DD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{463B56D6-809D-4FA2-8675-964763AA0DD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FD41123-E189-469E-A7AF-F0A0CA119A19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD41123-E189-469E-A7AF-F0A0CA119A19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD41123-E189-469E-A7AF-F0A0CA119A19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD41123-E189-469E-A7AF-F0A0CA119A19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{974D9678-7666-42AD-9B6C-197371ABE9F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{974D9678-7666-42AD-9B6C-197371ABE9F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{974D9678-7666-42AD-9B6C-197371ABE9F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{974D9678-7666-42AD-9B6C-197371ABE9F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{600C82C9-2940-42C1-AA58-B711509E94AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{600C82C9-2940-42C1-AA58-B711509E94AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{600C82C9-2940-42C1-AA58-B711509E94AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{600C82C9-2940-42C1-AA58-B711509E94AA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{49FE3D6F-C9AA-4E94-AA9A-42D77D116868} = {DEEFE102-5330-4954-86A9-FB22D7CBD5C5}
+		{D3084709-230C-4DF9-83C6-EA6B5247A8BB} = {DEEFE102-5330-4954-86A9-FB22D7CBD5C5}
+		{EB7EDBB0-5DC6-47B3-B8B7-FD06550F5969} = {DEEFE102-5330-4954-86A9-FB22D7CBD5C5}
+		{75B1992A-3ABA-462E-A898-38BD99EC2EAE} = {DEEFE102-5330-4954-86A9-FB22D7CBD5C5}
+		{463B56D6-809D-4FA2-8675-964763AA0DD6} = {DEEFE102-5330-4954-86A9-FB22D7CBD5C5}
+		{6B82F9A2-4C72-4D9A-BA48-F0EEB6E741BE} = {B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}
+		{03EE3F2E-950C-49B1-AE64-0E6B2CB9B108} = {B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}
+		{7FD41123-E189-469E-A7AF-F0A0CA119A19} = {B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}
+		{974D9678-7666-42AD-9B6C-197371ABE9F6} = {B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}
+		{600C82C9-2940-42C1-AA58-B711509E94AA} = {B6D0EFCA-667C-4C4C-8F07-4BD1CD3D2D3D}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\OficinaAuth.Aplicacao\OficinaAuth.Aplicacao.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.103.8" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.100.14" />
+    <PackageReference Include="Npgsql" Version="8.0.9" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,36 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+TestResults/
+coverage/
+publish/
+artefatos/
+*.zip
+
+## Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!exemplo.tfvars
+.terraform.lock.hcl
+crash.log
+
+## IDE / OS
+.vs/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+## env
+.env
+.env.local
+
+## Claude Code / Superpowers (artefatos de planejamento — nao versionar)
+.claude/
+CLAUDE.md
+docs/superpowers/
+.superpowers/
