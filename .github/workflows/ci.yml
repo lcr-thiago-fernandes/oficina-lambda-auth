@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
       - name: fmt
         run: terraform -chdir=terraform fmt -check -recursive
       # -backend=false: valida sintaxe/tipos sem S3 nem credenciais. O plan real e o CD.
