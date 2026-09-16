@@ -45,7 +45,7 @@ flowchart LR
     C -->|GET /api/v1/me/*<br/>Authorization: Bearer| GW
     GW -->|/auth/*| API[Lambda oficina-auth-api<br/>.NET 8 · VPC]
     GW -->|authorizer| AUTH[Lambda oficina-auth-authorizer<br/>.NET 8 · fora da VPC]
-    GW -->|/api/v1/{proxy+}<br/>VPC Link → NLB| EKS[EKS · oficina-app]
+    GW -->|"/api/v1/{proxy+}<br/>VPC Link → NLB"| EKS[EKS · oficina-app]
     API -->|SELECT cliente / usuario| RDS[(RDS PostgreSQL)]
     API -->|oficina/jwt_secret<br/>oficina/db_password| SM[Secrets Manager]
     API -->|falhas por IP/usuário| DDB[(DynamoDB<br/>oficina-auth-tentativas)]
