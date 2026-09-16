@@ -51,7 +51,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_LAMBDA_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
 
       - name: Terraform init
         run: terraform -chdir=terraform init
