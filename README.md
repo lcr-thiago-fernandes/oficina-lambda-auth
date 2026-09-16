@@ -23,6 +23,20 @@ A API (`oficina-app`) **não emite** token — só valida. Quem emite é este re
 Contratos: [`docs/contratos.md`](docs/contratos.md) (deste repo) e
 [`oficina-app/docs/contratos-entre-repositorios.md`](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/contratos-entre-repositorios.md).
 
+## Documentação arquitetural
+
+A documentação arquitetural da Fase 3 é centralizada no `oficina-app`:
+
+| O quê | Onde |
+|---|---|
+| Design arquitetural | [fase3-design-arquitetural.md](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/fase3-design-arquitetural.md) |
+| RFCs | [docs/rfc](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/rfc/README.md) |
+| ADRs | [docs/arquitetura](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/README.md) |
+| Diagrama de componentes | [componentes.md](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/diagramas/componentes.md) |
+
+As decisões deste repositório estão registradas em `## Decisões e limitações registradas`, abaixo, e em
+[docs/contratos.md](docs/contratos.md).
+
 ## Arquitetura
 
 ```mermaid
@@ -31,7 +45,7 @@ flowchart LR
     C -->|GET /api/v1/me/*<br/>Authorization: Bearer| GW
     GW -->|/auth/*| API[Lambda oficina-auth-api<br/>.NET 8 · VPC]
     GW -->|authorizer| AUTH[Lambda oficina-auth-authorizer<br/>.NET 8 · fora da VPC]
-    GW -->|/api/v1/{proxy+}<br/>VPC Link → NLB| EKS[EKS · oficina-app]
+    GW -->|"/api/v1/{proxy+}<br/>VPC Link → NLB"| EKS[EKS · oficina-app]
     API -->|SELECT cliente / usuario| RDS[(RDS PostgreSQL)]
     API -->|oficina/jwt_secret<br/>oficina/db_password| SM[Secrets Manager]
     API -->|falhas por IP/usuário| DDB[(DynamoDB<br/>oficina-auth-tentativas)]
@@ -168,24 +182,24 @@ Logs JSON no CloudWatch com `correlationId` (header `X-Correlation-Id`, mesmo da
 
 1. **Rota protegida `ANY /api/v1/{proxy+}` é criada aqui**, não no `infra-k8s`, para a
    ordem de `apply` ser linear (o authorizer só existe depois do API). Exige
-   `/oficina/apigw/vpc_link_integration_id` no SSM.
+   `/oficina/apigw/vpc_link_integration_id` no SSM. Ver [ADR-014](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/ADR-014-api-gateway-http-api.md).
 2. **Força bruta em DynamoDB**, não no banco: evita migration no schema do `oficina-app`.
    Contagem por IP (10) e por usuário (5) em janela de 15 min. O TTL do DynamoDB é só
-   faxina; a expiração é conferida em código.
+   faxina; a expiração é conferida em código. Ver [ADR-015](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/ADR-015-lambda-authorizer-hs256.md).
 3. **Segredo cacheado por container.** Rotacionar `oficina/jwt_secret` exige novo deploy
    das duas funções (ou esperar reciclagem) **e** rollout da API — os dois lados precisam
    trocar juntos.
 4. **`/auth/cliente` aceita CNPJ**: o cadastro da API permite clientes PJ; o campo se
-   chama `cpf` por fidelidade ao enunciado.
+   chama `cpf` por fidelidade ao enunciado. Ver [RFC-003](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/rfc/RFC-003-autenticacao-cpf-jwt.md).
 5. **401 uniforme e tempo constante** no login admin: usuário inexistente e senha errada
    respondem igual; o BCrypt roda contra um hash fictício quando não há usuário.
-6. **Authorizer com resposta simples** (`isAuthorized` + contexto), não policy IAM.
-7. **`Documento.cs` é cópia** (ADR-019): o job `paridade-documento` do CI compara com o
+6. **Authorizer com resposta simples** (`isAuthorized` + contexto), não policy IAM. Ver [ADR-015](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/ADR-015-lambda-authorizer-hs256.md).
+7. **`Documento.cs` é cópia** ([ADR-019](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/ADR-019-duplicacao-documento.md)): o job `paridade-documento` do CI compara com o
    original a cada PR.
 8. **`/auth/cliente` autentica só com o CPF**, um identificador semipúblico. O limitador
    por IP contém enumeração, mas quem já conhece um CPF cadastrado obtém tokens à
    vontade. É o desenho do enunciado da fase, não um defeito — a mitigação natural
-   seria um segundo fator, fora de escopo aqui.
+   seria um segundo fator, fora de escopo aqui. Ver [RFC-003](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/rfc/RFC-003-autenticacao-cpf-jwt.md).
 
 ## Swagger
 

@@ -23,10 +23,15 @@ silêncio se divergir: o `apply` passa e o sintoma aparece longe da causa.
 | `/oficina/apigw/vpc_link_integration_id` | **novo**: id da `aws_apigatewayv2_integration` (HTTP_PROXY via VPC Link) — alvo da rota `ANY /api/v1/{proxy+}` criada aqui (decisão D1) |
 | `/oficina/network/vpc_id`, `/oficina/network/private_subnet_ids` (StringList) | `vpc_config` da auth-api |
 | Rotas sem authorizer criadas lá | `GET /health`, `GET /swagger/{proxy+}`, `POST /api/v1/ordens-servico/{id}/orcamento/aprovacao` — mais específicas, vencem a `{proxy+}` |
-| Throttling no stage `$default` | **Requisito**, não sugestão: `route_settings` para `POST /auth/cliente` e `POST /auth/admin` (`throttling_rate_limit = 10`, `throttling_burst_limit = 20`). É a única camada grossa; a fina (por IP/identidade) fica no DynamoDB deste repo e pode ser distribuída entre várias origens |
+| Throttling no stage `$default` | **Requisito**, não sugestão: `route_settings` para `POST /auth/cliente` e `POST /auth/admin` (`throttling_rate_limit = 10`, `throttling_burst_limit = 20`). É a única camada grossa; a fina (por IP/identidade) fica no DynamoDB deste repo e pode ser distribuída entre várias origens (ver nota abaixo) |
 | Mapeamento opcional de contexto | `request_parameters` na integração do VPC Link: `append:header.X-Perfil = $context.authorizer.perfil`, `X-Sub`, `X-Documento`. Informativo — a API revalida o JWT |
 | NAT Gateway | a auth-api sai para Secrets Manager e DynamoDB por ele (sem VPC endpoints) |
 | Rota `ANY /api/v1/{proxy+}` | infra-k8s **não deve criar** essa rota — ela é criada aqui (ver tabela "Rotas que este repositório cria"). Dois `aws_apigatewayv2_route` disputando a mesma `route_key` em states diferentes dão `ConflictException` no `apply` |
+
+Honrado em **duas passadas** pelo `oficina-infra-k8s` (decisão D1 de lá): `route_settings` só aceita
+rota existente, e `POST /auth/*` nasce aqui. O throttling fica atrás da flag
+`throttling_auth_habilitado` (default `false`) e é ligado depois do primeiro `apply` deste repositório —
+ver [ADR-014](https://github.com/lcr-thiago-fernandes/oficina-app/blob/develop/docs/arquitetura/ADR-014-api-gateway-http-api.md).
 
 ## O que este repositório EXIGE do `oficina-infra-db`
 
