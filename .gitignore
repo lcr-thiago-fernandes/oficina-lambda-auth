@@ -15,7 +15,6 @@ artefatos/
 *.tfstate.*
 *.tfvars
 !exemplo.tfvars
-.terraform.lock.hcl
 crash.log
 
 ## IDE / OS
