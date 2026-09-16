@@ -46,7 +46,7 @@ jobs:
         run: ./scripts/empacotar.sh
 
       - name: Configurar credenciais AWS (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ secrets.AWS_LAMBDA_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
