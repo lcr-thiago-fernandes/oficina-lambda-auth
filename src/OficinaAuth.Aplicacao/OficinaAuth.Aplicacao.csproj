@@ -5,6 +5,6 @@
   <ItemGroup>
     <!-- Mesma versao da stack que VALIDA o token no oficina-app (Oficina.Api.csproj). -->
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.2.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.2.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.22.0" />
   </ItemGroup>
 </Project>
