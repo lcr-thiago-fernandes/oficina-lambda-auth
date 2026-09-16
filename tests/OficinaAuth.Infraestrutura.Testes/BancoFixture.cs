@@ -12,8 +12,9 @@ namespace OficinaAuth.Infraestrutura.Testes;
 /// </summary>
 public sealed class BancoFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("postgres:16-alpine")
+    // Testcontainers 4.15: o construtor sem parametros ficou obsoleto (CS0618, erro com TreatWarningsAsErrors);
+    // a imagem vai no construtor.
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:16-alpine")
         .WithDatabase("oficina")
         .WithUsername("oficina_admin")
         .WithPassword("senha-de-teste")
