@@ -6,6 +6,13 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     labels: ["dependencies", "nuget"]
+    ignore:
+      # Paridade com o oficina-app (Npgsql 8.x via Npgsql.EntityFrameworkCore.PostgreSQL 8.0.x):
+      # o mesmo driver dos dois lados do contrato de banco. Major so com decisao conjunta.
+      - dependency-name: "Npgsql"
+        update-types: ["version-update:semver-major"]
+      # Microsoft.IdentityModel.* precisam subir JUNTOS (Tokens 8.22 + JsonWebTokens 8.2 quebrou em runtime).
+      # Sem grupo, so aceitar PRs que tragam os dois.
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -18,3 +25,7 @@ updates:
     schedule:
       interval: "weekly"
     labels: ["dependencies", "terraform"]
+    # Major do provider aws (6.x) contraria a decisao D11: os quatro repositorios ficam em aws 5.x.
+    ignore:
+      - dependency-name: "hashicorp/aws"
+        update-types: ["version-update:semver-major"]
